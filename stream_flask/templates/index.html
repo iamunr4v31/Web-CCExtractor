@@ -1,19 +1,16 @@
 {% extends "base.html" %}
 <!-- {% block title %}Stream{% endblock %} -->
 {% block content %}
-    {% if "GET" in method %}
-    <form action="{{url_for('upload')}}" method="POST" enctype="multipart/form-data">
-        <input type = "file" name = "file" multiple />
-        <input type = "submit"/>
-    </form>
-    {% else %}
-    {% for i in range(file_names|length) %}
-        <video width="1280" height="720" controls autoplay muted>
-            <source src={{ url_for('static', filename="{{email}}/{{file_names[i])}}") }} type="video/{{file_exts[i]}}">
-            Your browser does not support the video tag.
-        </video>
+<form action="{{url_for('upload')}}" method="POST" enctype="multipart/form-data">
+    <input type = "file" name = "file" multiple />
+    <input type = "submit"/>
+</form>
+<br>
+<hr>
+    {% if "POST" in method %}
+        <a href="{{url_for('search')}}"><button>Search Captions</button></a>
+        <br>
         <hr>
-    {% endfor %}
-    <a href="{{url_for('search')}}"><button>Search Captions</button></a>
+        <a href="{{url_for('get_captions')}}"><button>See Caption History</button></a>
     {% endif %}
 {% endblock %}

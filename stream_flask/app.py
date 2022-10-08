@@ -90,29 +90,6 @@ s3 = boto3.resource(
 )
 
 
-def create_table():
-    # table = dynamodb.create_table(
-    #     TableName="users",
-    #     KeySchema=[{"AttributeName": "email", "KeyType": "HASH"}],
-    #     AttributeDefinitions=[{"AttributeName": "email", "AttributeType": "S"}],
-    #     ProvisionedThroughput={"ReadCapacityUnits": 5, "WriteCapacityUnits": 5},
-    # )
-    # table.meta.client.get_waiter("table_exists").wait(TableName="users")
-    cTable = dynamodb.create_table(
-        TableName="captions",
-        KeySchema=[
-            {"AttributeName": "email", "KeyType": "HASH"},
-            {"AttributeName": "file_hash", "KeyType": "RANGE"},
-        ],
-        AttributeDefinitions=[
-            {"AttributeName": "email", "AttributeType": "S"},
-            {"AttributeName": "file_hash", "AttributeType": "S"},
-        ],
-        ProvisionedThroughput={"ReadCapacityUnits": 5, "WriteCapacityUnits": 5},
-    )
-    cTable.meta.client.get_waiter("table_exists").wait(TableName="captions")
-
-
 ##################
 ## Celery Tasks ##
 ##################
@@ -139,7 +116,8 @@ def generate_captions(file_name: str, email: str, *args):
             cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
         )
         stdout, stderr = proc.communicate()
-        print(stderr)
+        # print(stderr)
+        secure_name = secure_filename(file_name.split("/")[-1])
         data = {
             "index": [],
             "start": [],
@@ -148,6 +126,7 @@ def generate_captions(file_name: str, email: str, *args):
             "text": [],
             "email": email,
             "file_hash": file_hash.hexdigest(),
+            "file_name": secure_name,
         }
         if stdout:
             srt = pysrt.from_string(stdout)
@@ -155,7 +134,6 @@ def generate_captions(file_name: str, email: str, *args):
                 dt = sub.__dict__
                 for k, v in dt.items():
                     data[k].append(str(v))
-        secure_name = secure_filename(file_name.split("/")[-1])
         upload_file.delay(file_name, object_name=f"{email}/{secure_name}")
         load_captions_to_db.delay(data)
         return data
@@ -223,6 +201,8 @@ def signup():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    if request.cookies.get("email"):
+        return redirect(url_for("upload"))
     if request.method == "POST":
         try:
             email = request.form["email"]
@@ -269,7 +249,7 @@ def upload():
         ]
         print(paths)
         # exts = [x.filename.split(".")[-1] for x in f]
-        response = make_response(redirect(url_for("search")))
+        response = make_response(render_template("index.html", method="POST"))
         for i, file in enumerate(f):
             file.save(paths[i])
             task = generate_captions.delay(paths[i], email)
@@ -304,19 +284,32 @@ def search():
             returns.append(search_terms)
         # print(returns)
         return render_template(
-            "search.html", method="POST", data=returns, files=check_files
+            "search.html",
+            method="POST",
+            data=returns,
+            files=check_files,
+            checklist=check_files,
         )
+
+
+@app.route("/get-all-captions", methods=["GET"])
+def get_captions():
+    email = request.cookies.get("email")
+    captions = dynamodb.Table("captions")
+    response = captions.scan()
+    returns = [item for item in response["Items"] if item["email"] == email]
+    return render_template("captions.html", data=returns)
 
 
 if __name__ == "__main__":
     # app = create_app(celery=app.celery)
-    table = dynamodb.Table("captions")
-    table.delete()
-    table.wait_until_not_exists()
+    # table = dynamodb.Table("captions")
+    # table.delete()
+    # table.wait_until_not_exists()
     # table = dynamodb.Table("users")
     # table.delete()
     # table.wait_until_not_exists()
-    print("Tables deleted")
-    create_table()
-    print(list(dynamodb.tables.all()))
-    # app.run(host="localhost", port=5000, debug=True)
+    # print("Tables deleted")
+    # create_table()
+    # print(list(dynamodb.tables.all()))
+    app.run(host="localhost", port=5000, debug=True)

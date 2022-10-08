@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% for results in data %}
+    <label>{{results.file_name}}</label>
+    <table style="border: 1px solid black;">
+        <tr>
+            <th style="border: 1px solid black;">Start</th>
+            <th style="border: 1px solid black;">End</th>
+            <th style="border: 1px solid black;">Text</th>
+        </tr>
+        {% if results|length == 0 %}
+        <tr>
+            <td style="border: 1px solid black;">Captions not Found</td>
+            <td style="border: 1px solid black;">Captions not Found</td>
+            <td style="border: 1px solid black;">Captions not Found</td>
+        </tr>
+        {% else %}
+        {% for result in results.start %}
+        <tr>
+            <td style="border: 1px solid black;">{{result}}</td>
+            <td style="border: 1px solid black;">{{results.end[loop.index0]}}</td>
+            <td style="border: 1px solid black;">{{results.text[loop.index0]}}</td>
+        </tr>
+        {% endfor %}
+        {% endif %}
+    </table>
+    <hr>
+    {% endfor %}
+    <br>
+    <a href="{{url_for('search')}}"><button>Search Captions</button></a>
+{% endblock %}

@@ -35,4 +35,4 @@ RUN poetry config virtualenvs.create false && \
 
 COPY . .
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8000",  "--timeout", "0", "stream_flask.app:app"]
+CMD ["gunicorn", "-w", "4", "--threads", "4", "--bind", "0.0.0.0:8000",  "--timeout", "0", "stream_flask.app:app"]

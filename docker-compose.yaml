@@ -18,6 +18,7 @@ services:
         - "FLASK_ENV=${FLASK_ENV:-production}"
     depends_on:
       - "redis"
+      - "aws"
     expose:
       - "8000"
     # ports:
@@ -53,6 +54,9 @@ services:
       - SERVICES=s3, dynamodb
     # expose:
     #   - 4566
+    # depends:
+    #   - "redis"
+    #   - "aws"
     ports:
       - "4566:4566"
     restart: "always"
@@ -61,13 +65,9 @@ services:
   aws:
     container_name: aws-cli
     image: amazon/aws-cli:latest
-    command:
-      "configure set AWS_ACCESS_KEY_ID test &&
+    command: "configure set AWS_ACCESS_KEY_ID test &&
       configure set AWS_SECRET_ACCESS_KEY test &&
-      configure set default.region us-east-1 &&"
-      # dynamodb create-table --cli-input-json file://captions.json --endpoint-url=http://localhost:4566 &&
-      # dynamodb create-table --cli-input-json file://users.json --endpoint-url=http://localhost:4566 &&
-      # s3 mb s3://mybucket --endpoint-url=http://localhost:4566"
+      configure set default.region us-east-1"
     environment:
       - AWS_REGION=us-east-1
       - AWS_ACCESS_KEY_ID=test
