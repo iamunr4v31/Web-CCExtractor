@@ -1,0 +1,90 @@
+services:
+  redis:
+    image: "redis:5.0.4-stretch"
+    restart: "always"
+    stop_grace_period: "3s"
+    expose:
+      - "6379"
+    # ports:
+    #   - "6379:6379"
+    # volumes:
+    #   - "redis:/data"
+
+  web:
+    build:
+      context: "."
+      dockerfile: "Dockerfile"
+      args:
+        - "FLASK_ENV=${FLASK_ENV:-production}"
+    depends_on:
+      - "redis"
+    expose:
+      - "8000"
+    # ports:
+    #   - "8000:8000"
+    restart: "always"
+    stop_grace_period: "3s"
+    volumes:
+      - "./stream_flask/static/:/code/stream_flask/static/"
+    #   - "${DOCKER_WEB_VOLUME:-./public:/app/public}"
+
+  worker:
+    build:
+      context: "."
+      dockerfile: "Dockerfile"
+      args:
+        - "FLASK_ENV=${FLASK_ENV:-production}"
+    command: celery -A stream_flask.app.celery worker --loglevel=INFO
+    depends_on:
+      - "redis"
+      - "localstack"
+    restart: "always"
+    stop_grace_period: "3s"
+    volumes:
+      - "./stream_flask/static/:/code/stream_flask/static/"
+    #   - "${DOCKER_WEB_VOLUME:-./public:/app/public}"
+
+  localstack:
+    image: localstack/localstack-full
+    environment:
+      # - AWS_DEFAULT_REGION=us-east-1
+      # - AWS_ACCESS_KEY_ID=test
+      # - AWS_SECRET_ACCESS_KEY=test
+      - SERVICES=s3, dynamodb
+    # expose:
+    #   - 4566
+    ports:
+      - "4566:4566"
+    restart: "always"
+    stop_grace_period: "3s"
+
+  aws:
+    container_name: aws-cli
+    image: amazon/aws-cli:latest
+    command:
+      "configure set AWS_ACCESS_KEY_ID test &&
+      configure set AWS_SECRET_ACCESS_KEY test &&
+      configure set default.region us-east-1 &&"
+      # dynamodb create-table --cli-input-json file://captions.json --endpoint-url=http://localhost:4566 &&
+      # dynamodb create-table --cli-input-json file://users.json --endpoint-url=http://localhost:4566 &&
+      # s3 mb s3://mybucket --endpoint-url=http://localhost:4566"
+    environment:
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+    # entrypoint: tail -f /dev/null
+    depends_on:
+      - localstack
+
+  nginx:
+    build:
+      context: "."
+      dockerfile: "./nginx/Dockerfile"
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - web
+
+volumes:
+  redis: {}

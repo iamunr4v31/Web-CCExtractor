@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<form method="post" action = "{{url_for('signup')}}">
+    <h2 class="text-center"><strong>Create</strong> an account.</h2>
+    <div class="form-group"><input class="form-control" type="text" name="name" placeholder="Name"></div>
+    <div class="form-group"><input class="form-control" type="email" name="email" placeholder="Email"></div>
+    <div class="form-group"><input class="form-control" type="password" name="password" placeholder="Password "></div>
+    <div class="form-group">
+        <div class="form-check">
+            <label class="form-check-label"><input class="form-check-input" type="checkbox">I agree to the license terms.</label>
+        </div>
+    </div>
+    <div class="form-group">
+    <input type="submit" name="submit" value="Sign up" class="btn btn-primary btn-block" style="background-color:#aedc8a;color:rgb(40,140,38);">
+     </div>
+    <a href="{{url_for('login')}}" class="already">You already have an account? Login here.</a>
+</form>
+{% endblock %}

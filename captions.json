@@ -1,0 +1,12 @@
+{
+    "TableName": "captions",
+    "KeySchema": [
+        {"AttributeName": "email", "KeyType": "HASH"},
+        {"AttributeName": "file_hash", "KeyType": "RANGE"}
+    ],
+    "AttributeDefinitions": [
+        {"AttributeName": "email", "AttributeType": "S"},
+        {"AttributeName": "file_hash", "AttributeType": "S"}
+    ],
+    "ProvisionedThroughput": {"ReadCapacityUnits": 5, "WriteCapacityUnits": 5}
+}

@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "stream-flask"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+packages = [{include = "stream_flask"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+Pillow = "^9.2.0"
+Flask = "^2.2.2"
+boto3 = "^1.24.84"
+Werkzeug = "^2.2.2"
+pysrt = "^1.1.2"
+celery = "^5.2.7"
+redis = "^4.3.4"
+Flask-Login = "^0.6.2"
+gunicorn = "^20.1.0"
+localstack = "^1.2.0"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^22.8.0"
+localstack = "^1.1.0"
+
+[build-system]
+requires = ["poetry-core", "poetry>=1.1.0"]
+build-backend = "poetry.core.masonry.api"

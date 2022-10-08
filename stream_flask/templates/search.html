@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+    <form id="form" action="{{url_for('search')}}" method="post"> 
+        <input type="search" id="query" name="q" placeholder="Search..." style="margin-bottom: 30px;">
+        <button type="submit">Search</button>
+        <br>
+        <!-- <input type="text" name="task_id" id="task_id"> -->
+        {% for file in checklist %}
+            <input type="checkbox" name="checklist" value="{{file}}" checked style="margin-bottom: 20px;">{{file}}
+            <br>
+        {% endfor %}
+    </form>
+    {% if data %}
+        <h2>Results</h2>
+        {% for results in data %}
+        <label>{{files[loop.index0]}}</label>
+        <table style="border: 1px solid black;">
+            <tr>
+                <th style="border: 1px solid black;">Start</th>
+                <th style="border: 1px solid black;">End</th>
+                <th style="border: 1px solid black;">Text</th>
+            </tr>
+            {% if results|length == 0 %}
+            <tr>
+                <td style="border: 1px solid black;">Captions not Found</td>
+                <td style="border: 1px solid black;">Captions not Found</td>
+                <td style="border: 1px solid black;">Captions not Found</td>
+            </tr>
+            {% else %}
+            {% for result in results %}
+            <tr>
+                <td style="border: 1px solid black;">{{result.Start}}</td>
+                <td style="border: 1px solid black;">{{result.End}}</td>
+                <td style="border: 1px solid black;">{{result.Text}}</td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+        </table>
+        <hr>
+        {% endfor %}
+    {% endif %}
+{% endblock %}
