@@ -9,6 +9,10 @@
 </head>
 <body>
     {% if not log %}
+    <a href="{{ url_for('upload') }}"><button>Upload More...</button></a>
+    <a href="{{ url_for('search') }}"><button>Search in Session</button></a>
+    <a href="{{ url_for('get_captions') }}"><button>Show all Captions</button></a>
+    <a href="{{ url_for('show_files') }}"><button>Show files stored in S3</button></a>
     <a href="{{ url_for('logout') }}"><button>Sign Out</button></a>
     <hr>
     {% endif %}

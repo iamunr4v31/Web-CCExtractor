@@ -7,10 +7,4 @@
 </form>
 <br>
 <hr>
-    {% if "POST" in method %}
-        <a href="{{url_for('search')}}"><button>Search Captions</button></a>
-        <br>
-        <hr>
-        <a href="{{url_for('get_captions')}}"><button>See Caption History</button></a>
-    {% endif %}
 {% endblock %}
