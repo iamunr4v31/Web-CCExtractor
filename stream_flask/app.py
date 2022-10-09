@@ -301,6 +301,14 @@ def get_captions():
     return render_template("captions.html", data=returns)
 
 
+@app.route("/show-all-files", methods=["GET"])
+def show_files():
+    email = request.cookies.get("email")
+    Bucket = s3.Bucket("mybucket")
+    files = [obj.key for obj in Bucket.objects.all() if obj.key.startswith(email)]
+    return files
+
+
 if __name__ == "__main__":
     # app = create_app(celery=app.celery)
     # table = dynamodb.Table("captions")
